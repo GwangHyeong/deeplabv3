@@ -19,8 +19,11 @@ _B_MEAN = 103.94
 #                  # 16=potted plant, 17=sheep, 18=sofa, 19=train, 20=tv/monitor
 #                  (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128)]
 
-label_colours = [(128, 20, 20), (255, 255, 255)]
-#label_colours = [(255, 255, 255)]
+# label_colours = [(128, 20, 20), (255, 255, 255)]
+label_colours = [(0, 0, 0), (0, 220, 0)]  # 0=background 1=leaf
+
+
+# label_colours = [(255, 255, 255)]
 
 def decode_labels(mask, num_images=1, num_classes=2):  # default def decode_labels(mask, num_images=1, num_classes=21)
     """Decode batch of segmentation masks.
@@ -34,6 +37,7 @@ def decode_labels(mask, num_images=1, num_classes=2):  # default def decode_labe
     A batch with num_images RGB images of the same size as the input.
   """
     n, h, w, c = mask.shape
+    print("eerroorr", mask.shape)
     assert (n >= num_images), 'Batch size %d should be greater or equal than number of images to save %d.' \
                               % (n, num_images)
     outputs = np.zeros((num_images, h, w, 3), dtype=np.uint8)
@@ -173,22 +177,22 @@ def random_crop_or_pad_image_and_label(image, label, crop_height, crop_width, ig
     If `images` was 3-D, a 3-D float Tensor of shape
     `[new_height, new_width, channels]`.
   """
-    #label = label - ignore_label  # Subtract due to 0 padding.
+    # label = label - ignore_label  # Subtract due to 0 padding.
     label = tf.to_float(label)
     image_height = tf.shape(image)[0]
     image_width = tf.shape(image)[1]
     image_and_label = tf.concat([image, label], axis=2)
-    # image_and_label_pad = tf.image.pad_to_bounding_box(
-    #     image_and_label, 0, 0,
-    #     tf.maximum(crop_height, image_height),
-    #     tf.maximum(crop_width, image_width))
-    # image_and_label_crop = tf.random_crop(
-    #     image_and_label_pad, [crop_height, crop_width, 4])
+    image_and_label_pad = tf.image.pad_to_bounding_box(
+        image_and_label, 0, 0,
+        tf.maximum(crop_height, image_height),
+        tf.maximum(crop_width, image_width))
+    image_and_label_crop = tf.random_crop(
+        image_and_label_pad, [crop_height, crop_width, 4])
 
-    # image_crop = image_and_label_crop[:, :, :3]
-    image_crop = image_and_label[:, :, :3]
-    # label_crop = image_and_label_crop[:, :, 3:]
-    label_crop = image_and_label[:, :, 3:]
+    image_crop = image_and_label_crop[:, :, :3]
+    # image_crop = image_and_label[:, :, :3]
+    label_crop = image_and_label_crop[:, :, 3:]
+    # label_crop = image_and_label[:, :, 3:]
     label_crop += ignore_label
     label_crop = tf.to_int32(label_crop)
 

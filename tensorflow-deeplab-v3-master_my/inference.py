@@ -46,6 +46,8 @@ parser.add_argument('--output_stride', type=int, default=16,
 parser.add_argument('--debug', action='store_true',
                     help='Whether to use debugger to track down bad values during training.')
 
+parser.add_argument('--pre_trained_model', type=str, default='./ini_checkpoints/resnet_v2_101/resnet_v2_101.ckpt',
+                    help='Path to the pre-trained model checkpoint.')
 _NUM_CLASSES = 2
 
 
@@ -65,7 +67,7 @@ def main(unused_argv):
             'output_stride': FLAGS.output_stride,
             'batch_size': 1,  # Batch size must be 1 because the images' size may differ
             'base_architecture': FLAGS.base_architecture,
-            'pre_trained_model': None,
+            'pre_trained_model': FLAGS.pre_trained_model,
             'batch_norm_decay': None,
             'num_classes': _NUM_CLASSES,
         })

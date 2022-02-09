@@ -31,7 +31,7 @@ parser.add_argument('--valid_data_list', type=str, default='./dataset/val.txt',
 parser.add_argument('--image_data_dir', type=str, default='JPEGImages',
                     help='The directory containing the image data.')
 
-parser.add_argument('--label_data_dir', type=str, default='SegmentationClassAug',
+parser.add_argument('--label_data_dir', type=str, default='SegmentationClassAug2',
                     help='The directory containing the augmented label data.')
 
 
@@ -97,7 +97,7 @@ def create_tf_record(output_filename,
     for idx, example in enumerate(examples):
         if idx % 500 == 0:
             tf.logging.info('On image %d of %d', idx, len(examples))
-        image_path = os.path.join(image_dir, example + '.jpg')
+        image_path = os.path.join(image_dir, example + '.JPG')
         label_path = os.path.join(label_dir, example + '.png')
 
         if not os.path.exists(image_path):
