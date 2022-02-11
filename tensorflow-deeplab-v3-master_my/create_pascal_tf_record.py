@@ -31,8 +31,19 @@ parser.add_argument('--valid_data_list', type=str, default='./dataset/val.txt',
 parser.add_argument('--image_data_dir', type=str, default='JPEGImages',
                     help='The directory containing the image data.')
 
-parser.add_argument('--label_data_dir', type=str, default='SegmentationClassAug2',
+parser.add_argument('--label_data_dir', type=str, default='SegmentationClassAug3',
                     help='The directory containing the augmented label data.')
+'''
+TODO: 추가된 코드 1
+'''
+parser.add_argument('--size_max', type=int, default=2000,
+                    help='Resized max size of width and height')
+
+parser.add_argument('--threshold_low', type=int, default=10,
+                    help='')
+
+parser.add_argument('--threshold_high', type=int, default=190,
+                    help='')
 
 
 def dict_to_tf_example(image_path,
@@ -108,6 +119,7 @@ def create_tf_record(output_filename,
             continue
 
         try:
+            # TODO : 20220210 check
             tf_example = dict_to_tf_example(image_path, label_path)
             writer.write(tf_example.SerializeToString())
         except ValueError:
