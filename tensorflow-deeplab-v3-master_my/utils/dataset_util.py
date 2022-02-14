@@ -128,9 +128,9 @@ def read_dataset(
   dataset = tf.data.Dataset.from_tensor_slices(filenames)
   dataset = dataset.shard(num_workers, worker_index)
   dataset = dataset.repeat(config.num_epochs or None)
-  # if config.shuffle:
-  #   dataset = dataset.shuffle(config.filenames_shuffle_buffer_size,
-  #                             reshuffle_each_iteration=True)
+  if config.shuffle:
+    dataset = dataset.shuffle(config.filenames_shuffle_buffer_size,
+                              reshuffle_each_iteration=True)
 
   # Read file records and shuffle them.
   # If cycle_length is larger than the number of files, more than one reader

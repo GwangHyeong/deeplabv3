@@ -159,6 +159,8 @@ def deeplabv3_model_fn(features, labels, mode, params):
         tf.map_fn(preprocessing.mean_image_addition, features),
         tf.uint8)
 
+    print('def deeplabv3_plus_model_fn num class ',params['num_classes'])
+
     network = deeplab_v3_generator(params['num_classes'],
                                    params['output_stride'],
                                    params['base_architecture'],
@@ -166,11 +168,10 @@ def deeplabv3_model_fn(features, labels, mode, params):
                                    params['batch_norm_decay'])
 
     logits = network(features, mode == tf.estimator.ModeKeys.TRAIN)
-    print('check_logits', logits)
-    print(tf.shape(logits))
+
     pred_classes = tf.expand_dims(tf.argmax(logits, axis=3, output_type=tf.int32), axis=3)
-    print('check_pred_classes', pred_classes)
-    print(tf.shape(pred_classes))
+    print('pred_classes', pred_classes)
+
     pred_decoded_labels = tf.py_func(preprocessing.decode_labels,
                                      [pred_classes, params['batch_size'], params['num_classes']],
                                      tf.uint8)
@@ -234,10 +235,6 @@ def deeplabv3_model_fn(features, labels, mode, params):
 
     cross_entropy = tf.losses.sparse_softmax_cross_entropy(logits=valid_logits, labels=valid_labels)
     # cross_entropy = keras.losses.binary_crossentropy(from_logits=False, labels=valid_labels)
-    # cross_entropy = tf.keras.metrics.binary_crossentropy(valid_logits, valid_labels)
-    #cross_entropy = tf.losses.sigmoid_cross_entropy(logits=valid_logits, labels=valid_labels)
-    #print('ttestt1',valid_logits)
-    #cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=valid_labels, logits=valid_logits)
 
     # Create a tensor named cross_entropy for logging purposes.
     tf.identity(cross_entropy, name='cross_entropy')

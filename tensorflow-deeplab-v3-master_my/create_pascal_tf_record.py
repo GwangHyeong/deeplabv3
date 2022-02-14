@@ -8,9 +8,11 @@ import argparse
 import io
 import os
 import sys
+import cv2
 
 import PIL.Image
 import tensorflow as tf
+import numpy as np
 
 from utils import dataset_util
 
@@ -81,6 +83,40 @@ def dict_to_tf_example(image_path,
 
     width, height = image.size
 
+    ''' image '''
+    image_image = image.resize((width, height), PIL.Image.HAMMING)
+    # image.save('./resized_image.jpg')
+    output = io.BytesIO()
+    image_image.save(output, 'JPEG')
+    encoded_jpg = output.getvalue()
+
+    ''' label '''
+    label = label.resize((width, height), PIL.Image.HAMMING)
+    label = np.array(label)
+    label = cv2.cvtColor(label, cv2.COLOR_BGR2RGB)
+
+    label_b, label_g, label_r = cv2.split(label)
+
+    label_array = np.full(label.shape[:2], 255, dtype=np.uint8)
+
+    # label_array[np.logical_and(label_r >= FLAGS.threshold_high, label_g <= FLAGS.threshold_low, label_b <= FLAGS.threshold_low)] = 2 # disease
+    # label_array[np.logical_and(label_r <= FLAGS.threshold_low, label_g <= FLAGS.threshold_low, label_b >= FLAGS.threshold_high)] = 1 # normal
+    # label_array[np.logical_and(label_r >= FLAGS.threshold_high, label_g >= FLAGS.threshold_high, label_b <= FLAGS.threshold_low)] = 0 # etc
+
+    # low = 10, high = 190
+    label_array[np.logical_and(label_r <= FLAGS.threshold_low, label_g >= FLAGS.threshold_high,
+                               label_b <= FLAGS.threshold_low)] = 1  # normal
+    label_array[np.logical_and(label_r <= FLAGS.threshold_low, label_g <= FLAGS.threshold_low,
+                               label_b <= FLAGS.threshold_low)] = 0  # background
+
+    # cv2.imwrite('./resized_label_gray.jpg', label_array)
+
+    label_image = PIL.Image.fromarray(label_array, 'L')
+    # label_image.save('./resized_label_gray.jpg')
+    output = io.BytesIO()
+    label_image.save(output, 'PNG')
+    encoded_label = output.getvalue()
+
     example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
         'image/width': dataset_util.int64_feature(width),
@@ -118,6 +154,7 @@ def create_tf_record(output_filename,
             tf.logging.warning('Could not find %s, ignoring example.', label_path)
             continue
 
+        print(image_path,label_path)
         try:
             # TODO : 20220210 check
             tf_example = dict_to_tf_example(image_path, label_path)
