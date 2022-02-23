@@ -8,7 +8,7 @@ _R_MEAN = 123.68
 _G_MEAN = 116.78
 _B_MEAN = 103.94
 
-# colour map
+# # colour map
 # label_colours = [(0, 0, 0),  # 0=background
 #                  # 1=aeroplane, 2=bicycle, 3=bird, 4=boat, 5=bottle
 #                  (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128),
@@ -20,7 +20,7 @@ _B_MEAN = 103.94
 #                  (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128)]
 
 # label_colours = [(128, 20, 20), (255, 255, 255)]
-label_colours = [(0, 0, 0), (0, 220, 0)]  # 0=background 1=leaf
+label_colours = [(0, 0, 0), (0, 192, 0)]  # 0=background 1=leaf
 
 
 # label_colours = [(255, 255, 255)]
@@ -36,16 +36,24 @@ def decode_labels(mask, num_images=1, num_classes=2):  # default def decode_labe
   Returns:
     A batch with num_images RGB images of the same size as the input.
   """
+    print('def decode_labels mask', mask)
+    print('def decode_labels mask(type)', type(mask))
+    print('def decode_labels mask(shape)', mask.shape)
+
     n, h, w, c = mask.shape
     print("eerroorr", mask.shape)
     assert (n >= num_images), 'Batch size %d should be greater or equal than number of images to save %d.' \
                               % (n, num_images)
     outputs = np.zeros((num_images, h, w, 3), dtype=np.uint8)
+    print('check_mask', mask[1, :, :, 0])
+
     for i in range(num_images):
         img = Image.new('RGB', (len(mask[i, 0]), len(mask[i])))
         pixels = img.load()
         for j_, j in enumerate(mask[i, :, :, 0]):
+            #print('j_ ,j', j_, j)
             for k_, k in enumerate(j):
+                #print('k_ ,k', k_, k)
                 if k < num_classes:
                     pixels[k_, j_] = label_colours[k]
         outputs[i] = np.array(img)
@@ -177,7 +185,7 @@ def random_crop_or_pad_image_and_label(image, label, crop_height, crop_width, ig
     If `images` was 3-D, a 3-D float Tensor of shape
     `[new_height, new_width, channels]`.
   """
-    # label = label - ignore_label  # Subtract due to 0 padding.
+    #label = label - ignore_label  # Subtract due to 0 padding.
     label = tf.to_float(label)
     image_height = tf.shape(image)[0]
     image_width = tf.shape(image)[1]
