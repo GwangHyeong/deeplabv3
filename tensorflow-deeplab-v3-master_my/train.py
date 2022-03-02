@@ -45,7 +45,7 @@ parser.add_argument('--learning_rate_policy', type=str, default='poly',
                     choices=['poly', 'piecewise'],
                     help='Learning rate policy to optimize loss.')
 
-parser.add_argument('--max_iter', type=int, default=30000,
+parser.add_argument('--max_iter', type=int, default=33000,
                     help='Number of maximum iteration used for "poly" learning rate policy.')
 
 parser.add_argument('--data_dir', type=str, default='./dataset/',
@@ -81,8 +81,8 @@ parser.add_argument('--debug', action='store_true',
                     help='Whether to use debugger to track down bad values during training.')
 
 _NUM_CLASSES = 2
-_HEIGHT = 512
-_WIDTH = 341
+_HEIGHT = 513
+_WIDTH = 513
 _DEPTH = 3
 _MIN_SCALE = 0.5# 0.5
 _MAX_SCALE = 2.0
@@ -110,9 +110,9 @@ def get_filenames(is_training, data_dir):
     A list of file names.
   """
     if is_training:
-        return [os.path.join(data_dir, 'voc_train.record')]
+        return [os.path.join(data_dir, 'test_1017.record')]
     else:
-        return [os.path.join(data_dir, 'voc_val.record')]
+        return [os.path.join(data_dir, 'v_1017.record')]
 
 
 def parse_record(raw_record):
@@ -187,7 +187,6 @@ def input_fn(is_training, data_dir, batch_size, num_epochs=1):
     A tuple of images and labels.
   """
     dataset = tf.data.Dataset.from_tensor_slices(get_filenames(is_training, data_dir))
-
     dataset = dataset.flat_map(tf.data.TFRecordDataset)
 
     if is_training:
@@ -198,8 +197,8 @@ def input_fn(is_training, data_dir, batch_size, num_epochs=1):
 
     dataset = dataset.map(parse_record)
     # ues not data preprocess
-    # dataset = dataset.map(
-    #     lambda image, label: preprocess_image(image, label, is_training))
+    dataset = dataset.map(
+        lambda image, label: preprocess_image(image, label, is_training))
     dataset = dataset.prefetch(batch_size)
 
     # We call repeat after shuffling, rather than before, to prevent separate
